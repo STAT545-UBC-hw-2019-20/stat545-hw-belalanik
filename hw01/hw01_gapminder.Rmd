@@ -1,0 +1,76 @@
+---
+title: "HW1: Exercise 2 (R Markdown)"
+output:
+  html_document: 
+    toc: true
+    number_sections: true
+    theme: cerulean
+---
+
+```{r load, warning = FALSE, echo = FALSE}
+#install.packages(c("gapminder", "tibble", "DT"))
+library(gapminder)
+library(tibble)
+library(DT)
+```
+
+# Print and summary
+
+## Print out data
+
+```{r}
+x <- gapminder
+head(x)
+```
+
+## Summary
+
+```{r}
+summary(x)
+```
+
+# Plot
+
+## Histogram
+
+```{r}
+hist(x$lifeExp, xlab = "Life expectancy in years", main = "Histogram of life expectancy")
+```
+
+<!--- 
+To explore the distribution of a continuous variable, we usually use histogram. 
+--> 
+
+## Boxplot
+
+```{r}
+boxplot(x$lifeExp)
+```
+
+# Tibble and wrap in datatable
+
+## Convert data to a tibble
+
+```{r}
+as_tibble(x)
+```
+
+## Convert data to a tibble and then wrap in datatable
+
+```{r}
+datatable(as_tibble(x))
+```
+
+# Regression analysis
+
+## Model
+
+```{r}
+fit <- lm(lifeExp~., data = x)
+```
+
+## Model diagnosis
+
+```{r}
+plot(fit)
+```
