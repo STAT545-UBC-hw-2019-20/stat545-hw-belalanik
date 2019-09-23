@@ -1,5 +1,5 @@
 # Exploratory data analysis using GitHub and R 
-_This is an MSc level course taught in the [University of British Columbia (UBC)](https://www.ubc.ca/)_. This is my participation repository where I will keep my works such as assignments, class practice and other relevant documents.
+_This is an MSc level course taught in the [University of British Columbia (UBC)](https://www.ubc.ca/)_. This is my homework repository where I will keep my assignments with name hw'#number' (e.g., hw01 means homework 01).
 
 ## Introduction of myself 
 
