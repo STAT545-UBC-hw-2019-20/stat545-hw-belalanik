@@ -1,0 +1,215 @@
+---
+title: "Assignment 2"
+author: "Md. Belal Hossain"
+output:
+  html_document:
+    toc: yes
+editor_options:
+  chunk_output_type: inline
+---  
+
+```{r load packages, warning = FALSE, message = FALSE, echo = FALSE}
+# load your packages here:
+library(gapminder)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DT)
+```
+
+# Exercise 1
+## 1.1
+
+```{r}
+ex1 <- gapminder %>%
+  filter(country=="Bangladesh" | country=="Brazil" | country=="Philippines") %>% 
+  filter(year >= 1970 & year <= 1979)
+print(ex1)
+```
+
+## 1.2
+
+```{r}
+ex1 %>% 
+  select(country, gdpPercap)
+```
+
+## 1.3
+```{r}
+gapminder_modified <- gapminder %>%
+  mutate(lagLifeExp = lag(lifeExp, 11)) %>% 
+  mutate(diffLifeExp = lifeExp - lagLifeExp) %>% 
+  filter(year==2007) %>% 
+  mutate(yn = ifelse(diffLifeExp > 0, "Increase", 
+                     ifelse(diffLifeExp < 0, "Decrease", "Constant"))) %>% 
+  rename(lifeExp2007 = lifeExp, lifeExp1952 = lagLifeExp) %>% 
+  select(country, continent, lifeExp2007, lifeExp1952, diffLifeExp, yn) %>% 
+  filter(yn=="Decrease") 
+print(gapminder_modified)
+```
+
+
+## 1.4
+```{r}
+gapminder %>% 
+  group_by(country) %>%  
+  summarise(maxGDP = max(gdpPercap))
+```
+
+
+## 1.5
+```{r, fig.width = 5, fig.height = 2}
+gapminder %>% 
+  filter(country=="Canada") 
+  ggplot(gapminder, aes(gdpPercap, lifeExp)) + 
+  geom_point(alpha = 0.1) +
+  scale_x_log10("GDP per capita (in log)", labels = scales::dollar_format()) +
+  theme_bw() +
+  ylab("Life Expectancy")
+```
+
+
+# Exercise 2
+```{r}
+gapminder_n <- gapminder %>% 
+  select(continent, lifeExp) %>% 
+print(gapminder_n)
+```
+
+**Possible values for categorical variable (_continent_)**: Name of continents.
+
+**Possible values for continuous variable (_lifeExp_)**: 0 to infinity (i.e., we can calculate mean, median, minimum, maximum, range, variance, standard deviation, etc.)
+
+## Summary of a categorical variable (_continent_)
+### Distict name
+```{r}
+gapminder_n %>%   
+  distinct(continent)
+```
+
+### Frequency table
+```{r}
+gapminder_n1 <- gapminder_n %>% 
+  select(continent) %>%
+  group_by(continent) %>% 
+  summarise (n = n()) %>%
+  mutate(freq = n / sum(n))
+print(gapminder_n1)
+```
+
+### Barplot
+```{r}
+gapminder_n2 <- gapminder_n1 %>% 
+  select(continent, freq) 
+  ggplot(gapminder_n1, aes(x = continent, y = freq)) +
+    geom_bar(stat = "identity", color = 5, fill = grey(0.7)) + 
+    xlab("Continent") +
+    ylab("Proportion") +
+    geom_text(aes(label=round(freq, 2)), vjust = -0.6, size = 4)+ 
+    theme_minimal()
+```
+
+### Pie chart
+```{r}
+ggplot(gapminder_n2, aes(x = "", y = freq, fill = continent)) +
+  geom_bar(width = 1, stat = "identity", color = "blue") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = freq/5 + c(0, cumsum(freq)[-length(freq)]), 
+            label = round(freq, 2)), size=4) +
+  scale_fill_brewer(palette="Blues") +
+  theme_void() 
+  
+```
+
+
+## Summary of a continuous variable (_lifeExp_)
+```{r}
+gapminder_nc <- gapminder_n %>% 
+  select(lifeExp)
+```
+
+### Summary statistics
+```{r}
+gapminder_nc %>% 
+  summarise(mean = mean(lifeExp), median = median(lifeExp), variance = var(lifeExp), 
+            minimum = min(lifeExp), maximum = max(lifeExp))
+```
+
+### Histogram
+```{r}
+hist(gapminder_nc$lifeExp, xlab = "Life expectancy", freq = F, main = "", ylim = c(0, 0.04),
+     xlim = c(20, 90))
+```
+
+## Summary of a continuous variable (_lifeExp_) in terms of a categorical variable (_continent_)
+### Summary statistics
+```{r}
+gapminder_n %>% 
+  group_by(continent) %>% 
+  summarise(mean = mean(lifeExp), median = median(lifeExp), variance = var(lifeExp), 
+            minimum = min(lifeExp), maximum = max(lifeExp))
+```
+
+### Boxplot
+```{r}
+ggplot(gapminder_n, aes( x = continent, y = lifeExp)) +
+  geom_boxplot() + xlab("Continent") + ylab("Life expectancy")
+```
+
+# Exercise 3
+## Scatter plot
+```{r, fig.width = 5, fig.height = 2}
+data(women)
+ggplot(women, aes(height, weight)) + 
+  geom_point(alpha = 0.1) +
+  xlab("Height in inch") +
+  ylab("Weight in lb") + 
+  theme_bw() 
+```
+
+## Scatter plot plus another plot
+
+```{r, fig.width = 5, fig.height = 2, warning = FALSE, message = FALSE}
+library(cowplot)
+plot1 <- ggplot(women, aes(height, weight)) + 
+  geom_point(alpha = 0.1) +
+  xlab("Height in inch") +
+  ylab("Weight in lb") + 
+  theme_bw() 
+plot2 <- ggplot(women, aes(height, weight)) + 
+  geom_point(alpha = 0.1) +
+  xlab("Height in inch") +
+  ylab("Weight in lb") + 
+  theme_bw() + 
+  geom_smooth(method = 'lm', formula = y~x)
+plot_grid(plot1, plot2, labels = "AUTO")
+```
+
+# Recycling
+## Wrong way
+```{r}
+filter(gapminder, country == c("Rwanda", "Afghanistan"))
+```
+
+**Comment**: The analyst wasn't succeeded. The analyst used concatenate with the symbol ',' (comma), but it should be '|' (or).
+
+## Right way
+```{r}
+filter(gapminder, country=="Rwanda" | country=="Afghanistan")
+```
+
+# Tibble display
+## knitr::kable()
+```{r, warning = FALSE, message = FALSE}
+filter(gapminder, country=="Rwanda" & year < 2000) %>% 
+knitr::kable() %>%
+  kable_styling()
+```
+
+## DT::datatable()
+```{r, warning = FALSE, message = FALSE}
+filter(gapminder, country=="Rwanda" | country=="Afghanistan") %>% 
+DT::datatable(gapminder)
+```
+
+
