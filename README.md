@@ -1,5 +1,5 @@
 # Exploratory data analysis using GitHub and R 
-_This is an MSc level course taught in the [University of British Columbia (UBC)](https://www.ubc.ca/)_. This is my homework repository where I will keep my assignments with name hw'#number' (e.g., hw01 means homework 01).
+_This is an MSc level course taught in the [University of British Columbia (UBC)](https://www.ubc.ca/)_. This is my homework repository where I will keep my assignments in the folder hw'#number' (e.g., hw01 means homework 01).
 
 ## Introduction of myself 
 
@@ -15,4 +15,3 @@ The additional things that I want to learn are:
 
 You can find me at 
 > belal.hossain@ubc.ca :email:
-
