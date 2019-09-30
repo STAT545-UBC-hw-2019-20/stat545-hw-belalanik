@@ -15,3 +15,10 @@ The additional things that I want to learn are:
 
 You can find me at 
 > belal.hossain@ubc.ca :email:
+
+
+## Navigation
+
+* [HW01](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw01)
+* [HW02](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw02)
+* [HW02](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw03)
