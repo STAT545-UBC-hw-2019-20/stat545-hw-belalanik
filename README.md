@@ -19,6 +19,9 @@ You can find me at
 
 ## Navigation
 
-* [Homework assignment 01 (hw01)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw01)
-* [Homework assignment 02 (hw02)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw02)
-* [Homework assignment 03 (hw03)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw03)
+* [Homework assignment 01 (hw01)](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-belalanik/hw01/hw01_gapminder.html)
+* [Homework assignment 01 (hw01) presentation](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-belalanik/hw01/hw01_presentation.html)
+* [Homework assignment 02 (hw02)](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-belalanik/hw02/hw02.html)
+* [Homework assignment 03 (hw03)](https://stat545-ubc-hw-2019-20.github.io/stat545-hw-belalanik/hw03/hw03.html)
+
+
