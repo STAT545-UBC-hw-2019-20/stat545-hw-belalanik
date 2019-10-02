@@ -1,0 +1,151 @@
+---
+title: "STAT 545A Assignment 03: dplyr/ggplot2 Part II"
+author: "Md. Belal Hossain"
+output:
+  html_document:
+    toc: yes
+editor_options:
+  chunk_output_type: inline
+---  
+
+```{r load packages, warning = FALSE, message = FALSE, echo = FALSE}
+# load packages here:
+library(gapminder)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DT)
+library(gridExtra)
+```
+
+# Task Option 1
+Report the absolute and/or relative abundance of countries with low life expectancy over time by continent: Compute some measure of worldwide life expectancy – you decide – a mean or median or some other quantile or perhaps your current age. Then determine how many countries on each continent have a life expectancy less than this benchmark, for each year.
+
+## Exploring asymmetry of the *LifeExp* variable
+
+```{r, warning=FALSE}
+with(gapminder, c(Mean = mean(lifeExp), Median = median(lifeExp), Skewness = moments::skewness(lifeExp)))
+```
+As skewness is not equal to zero (or not approximately zero), it is better to use the median than the mean as a measure of central tendency. 
+
+## Countries with low life expectancy over time by continent
+The following table shows the countries experienced below the median life expectancy over time by continent:
+
+```{r, warning=FALSE}
+dat1 <- gapminder %>%
+  group_by(year) %>% 
+  mutate(median_lifeExp = median(lifeExp)) %>% 
+  group_by(continent, year) %>% 
+  filter(lifeExp < median_lifeExp) %>% 
+  select(continent, country, year, lifeExp, median_lifeExp) %>% 
+  as.tibble(dat1) 
+  DT::datatable(dat1)
+```
+
+## Frequency of countries with low life expectancy by year
+The following table shows how many countries on each continent have a life expectancy less than the median, for each year:
+
+```{r, warning=FALSE}
+dat1 %>%
+  group_by(continent, year) %>% 
+  mutate(n = length(unique(country))) %>% 
+  arrange(year) %>% 
+  distinct(year, continent, n) %>% 
+  as_tibble() %>% 
+  DT::datatable()
+```
+
+
+## Plot of proportion of countries with low life expectancy by year
+A bar chart is provided below to show the proportion of countries with low life expectancy by year for all of the continents. In particular, the graph shows the proportion of countries per continent below the median life expectancy in that particular year.
+
+```{r, warning=FALSE}
+gapminder %>%
+  group_by(continent) %>% 
+  mutate(n = length(unique(country))) %>% 
+  group_by(year) %>%
+  mutate(median_lifeExp = median(lifeExp)) %>% 
+  group_by(continent, year) %>%
+  mutate(freq = sum(lifeExp < median_lifeExp)) %>% 
+  mutate(prop = freq*100/n) %>% 
+  ggplot(aes(x = year, y = prop, fill = continent, colour = continent)) +
+     geom_line(alpha = 0.8) + 
+    xlab("Year") + ylab("Proportion") 
+```
+
+It is clear from the graph that approximately 90% of African countries had below the worldwide median life expectancy each year. This figure remained almost steady throughout the study period. Also, nearly half of Asian countries had experienced low life expectancy than the median throughout the period. Moreover, one-fourth of American countries had a low life expectancy and it was slightly increased from the 1970s. Only 5% of European countries experienced with a low life expectancy than the median, while none of the countries in Oceania had experienced such incidence.
+
+# Task Option 2
+Get the maximum and minimum of GDP per capita for all continents.
+
+## Maximum and minimum of GDP per capita
+The following table shows the maximum and minimum GDP per capita for all continents:
+
+```{r, warning=FALSE}
+dat2 <- gapminder %>%
+  group_by(continent) %>% 
+  summarize(maxGDP = max(gdpPercap), minGDP = min(gdpPercap)) %>% 
+  as_tibble() 
+  knitr::kable(dat2)
+```
+
+The maximum GDP was seen in Asia ($113523.13) followed by Europe ($49357.19), while Africa continent experienced the minimum GDP ($241.1659).
+
+## A bar chart for showing the maximum and minimum of GDP
+As the bar chart will show the maximum and minimum of GDP per capita for all continents, it is better to reshape the data from wide to long format. That means two columns 'maxGDP' and 'minGDP' will now be in a single column named as 'GDP'. A separate column named as 'minmax' will tell which GDP value is for the maximum and which GDP value is for the minimum. The reshaped dataset is provided below:
+
+```{r, warning=FALSE}
+dat3 <- dat2 %>% 
+  pivot_longer(cols = - continent, names_to  = "minmax", values_to = "GDP") %>% 
+  print(dat3)
+```
+
+The following bar chart shows the maximum and minimum of GDP per capita for all continents:
+```{r, warning=FALSE}
+dat3 %>% 
+  ggplot(aes(x = continent, y = GDP, fill = minmax)) +
+  geom_bar(stat="identity", position=position_dodge()) + 
+  xlab("Continent") + ylab("Per capita GDP") + 
+  scale_fill_discrete("GDP", labels = c("Maximum", "Minimum"))
+```
+
+Clearly, Asia continent had the largest difference between the maximum and minimum GDP per capita. Also, the minimum GDP per capita was comparatively higher in Oceania than other continents.
+
+
+# Task Option 3
+Look at the spread of GDP per capita within the continents.
+
+## Explore the spread of GDP
+The following table shows different measures of the spread of the GDP per capita variable. In particular, variance, standard deviation, standard error and interquartile range (IQR) are used. It is clearly seen from the table that the variation in GDP per capita was highest in Asia continent, while it was comparatively lower in Africa.
+
+```{r, warning=FALSE}
+gapminder %>% 
+  group_by(continent) %>% 
+  summarize(Variance = var(gdpPercap), Std = sd(gdpPercap), 
+            Std.Error = Std/sqrt(length(gdpPercap)), IQR = IQR(gdpPercap)) %>% 
+  knitr::kable()
+```
+
+## Boxplot to examine the spread
+A boxplot is provided below to depict the spread of the GDP per capita for each of the continents. This plot provides the spread of the variable based on five-number summary (minimum, first quartile, median, third quartile, and maximum). It is clear from the figure that Africa had the lowest spread, while Europe had the highest (width of the box). However, the median GDP per capita was highest in Oceania (middle line). Asia had more extreme values compare to other continents (dots above the box).
+
+```{r, warning=FALSE}
+gapminder %>% 
+  ggplot(aes(x = continent, y = gdpPercap, color = continent)) +
+  geom_boxplot(aes()) + 
+  ylab("GDP per capita") + xlab("Continent") +
+  scale_colour_discrete("") + 
+  theme_bw()
+```
+
+# Optional Exercise
+Get table and figure side-by-side. 
+
+A table and figure side-by-side is provided below. The figure explores the distribution of the GDP per capita variable, while the table summarizes the minimum, median and maximum value of the variable.
+
+```{r, message=FALSE, fig.width = 9.5, fig.height = 4}
+myPlot <- ggplot(gapminder, aes(x = gdpPercap)) + geom_histogram(aes(y = ..density..), color = "black", fill="grey") + xlab("GDP per capita") + ylab("Density") 
+myTable <- tableGrob(summarise(gapminder, Minimum = min(gdpPercap), Median = median(gdpPercap), Maximum = max(gdpPercap)))
+gridExtra::grid.arrange(myPlot, myTable, nrow = 1, widths = 4:3)
+```
+
