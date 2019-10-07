@@ -1,0 +1,164 @@
+---
+title: "STAT 545A Assignment 04: Tidy data and joins"
+author: "Md. Belal Hossain"
+output:
+  html_document:
+    toc: yes
+editor_options:
+  chunk_output_type: inline
+---  
+
+# Instructions
+The details instructions of this assignment can be found [here](https://stat545.stat.ubc.ca/evaluation/hw04/hw04/).
+
+
+```{r load packages, warning = FALSE, message = FALSE, echo = FALSE}
+# load packages here:
+library(gapminder)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DT)
+```
+
+# Exercise 1: Univariate Data Reshaping
+
+## Univariate Option 1
+### Task 1
+_Make a tibble with one row per year, and columns for life expectancy for two or more countries._
+
+Before making a tibble, let us see the original dataset for two countries (Brazil and Canada) by year first. From the data table, it is clearly seen that _lifeExp_ is a single variable that contains values for each year and for each country. That means this a long format dataset. To make a tibble with one row per year and columns for life expectancy for Brazil and Canada, we need to reshape this dataset from long to wide format.
+
+```{r, warning=FALSE}
+gapminder %>% 
+  filter(country %in% c("Brazil", "Canada")) %>% 
+  arrange(year) %>% 
+  DT::datatable()
+```
+
+The wide-format dataset is given below where the variables _Brazil_ and _Canada_ indicate the life expectancy values for Brazil and Canada respectively.
+
+```{r, warning=FALSE}
+gapminder_wide <- gapminder %>% 
+  filter(country %in% c("Brazil", "Canada")) %>% 
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = lifeExp) 
+  DT::datatable(gapminder_wide)
+```
+
+### Task 2
+_Take advantage of this new data shape to scatterplot life expectancy for one country against that of another._
+
+As life expectancy values for Brazil and Canada are now in two columns, we can easily construct a scatter plot. In this case, Brazil plotted along the x-axis and Canada plotted along the y-axis. The plot is given below:
+
+```{r, warning=FALSE}
+gapminder_wide %>%
+  ggplot() + 
+  geom_point(aes(x = Brazil, y = Canada)) +
+  ylab("Canada")+ 
+  xlab("Brazil") + 
+  ggtitle("Life expectancy in Canada and Brazil from 1952 to 2007 ") + 
+  theme_bw()
+```
+
+
+### Task 3
+_Re-lengthen the data._
+
+To re-lengthen the data, we will change the format from wide to long. The long format dataset for the countries Brazil and Canada is given below:
+
+```{r, warning=FALSE}
+gapminder_long <- gapminder_wide %>% 
+  pivot_longer(cols = c(Brazil, Canada), 
+               names_to = "country", 
+               values_to = "LifeExp") %>% 
+  arrange(country) 
+  DT::datatable(gapminder_long)
+```
+
+# Exercise 2: Multivariate Data Reshaping
+## Multivariate Option 2
+
+### Task 1
+_Make a tibble with one row per year, and columns for life expectancy and GDP per capita (or two other numeric variables) for two or more countries._
+
+
+The wide-format dataset is given below, which contains a tibble with one row per year, and columns for life expectancy and GDP per capita for two countries Brazil and Canada. The variables _lifeExp_Brazil_ and	_lifeExp_Canada_ indicate life expectancy, while _gdpPercap_Brazil_ and _gdpPercap_Canada_ indicate GDP per capita, for Brazil and Canada respectively.
+
+```{r, warning=FALSE}
+gapminder_wider_mv <- gapminder %>%
+  filter(country %in% c("Brazil", "Canada")) %>% 
+  pivot_wider(id_cols = year, 
+              names_from = country, 
+              values_from = c(lifeExp, gdpPercap))
+   DT::datatable(gapminder_wider_mv)
+```
+
+### Task 2
+_Re-lengthen the data._
+
+To re-lengthen the data, we will change the format from wide to long. The long format dataset for the countries Brazil and Canada is given below:
+
+```{r, warning=FALSE}
+gapminder_long_mv <- gapminder_wider_mv %>% 
+  pivot_longer(cols = -year, 
+               names_to = c(".value", "country"), 
+               names_sep = "_") %>% 
+  arrange(country)
+  DT::datatable(gapminder_long_mv)
+```
+
+
+# Exercise 3: Table Joins
+_Read in the made-up wedding guestlist and email addresses. Then, complete the following tasks using the tidyverse (tidyr, dplyr, …). No need to do any pivoting – feel free to leave guest in its current format._
+
+## Read data
+To complete Exercise 3, let us read the data first:
+
+```{r, warning=FALSE, message=FALSE}
+guest <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/attend.csv")
+email <- read_csv("https://raw.githubusercontent.com/STAT545-UBC/Classroom/master/data/wedding/emails.csv")
+```
+
+## Task 3.1
+_For each guest in the guestlist (guest tibble), add a column for email address, which can be found in the email tibble._
+
+The guest variable of the email dataset contains observations with the guest's name and their email address. Therefore, we will use 'separate_rows' to make two variables: one for name and another for the email address. Now, we will join the guest and email dataset together to make a guest tibble which contains the information of guests and their email addresses. The result is shown below:
+
+
+```{r, warning=FALSE}
+email.new <- email %>% 
+  separate_rows(guest, sep = ", ") %>% 
+  rename(name = guest)
+  
+  guest.new <- guest %>% 
+  left_join(email.new, by = "name") 
+  DT::datatable(guest.new)
+```
+
+## Task 3.2
+_Who do we have emails for, yet are not on the guestlist?_
+
+```{r, warning=FALSE}
+email.new %>% 
+  anti_join(guest, by = "name") %>% 
+  as_tibble() %>% 
+  knitr::kable() %>% 
+  kable_styling(latex_options = "scale_down")
+```
+Three people named Turner Jones, Albert Marshall, and Vivian Marshall have email addresses, yet they are not on the guestlist.
+
+## Task 3.3
+_Make a guestlist that includes everyone we have emails for (in addition to those on the original guestlist)._
+
+The guest list that includes everyone (original list addition to having email) is shown below:
+
+```{r, warning=FALSE}
+guest %>% 
+  full_join(email.new, by = "name") %>%
+  DT::datatable()
+```
+
+
+
