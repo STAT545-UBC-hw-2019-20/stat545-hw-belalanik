@@ -7,6 +7,7 @@ _This is an MSc level course taught in the [University of British Columbia (UBC)
 * [Homework assignment 02 (hw02)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw02)
 * [Homework assignment 03 (hw03)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw03)
 * [Homework assignment 04 (hw04)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw04)
+* [Homework assignment 05 (hw05)](https://github.com/STAT545-UBC-hw-2019-20/stat545-hw-belalanik/tree/master/hw05)
 
 
 ## Introduction of myself 
